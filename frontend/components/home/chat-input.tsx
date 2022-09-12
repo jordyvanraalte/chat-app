@@ -1,16 +1,17 @@
 import React, {useState} from "react";
 import {services} from "../../lib/services";
+import {selectChatState} from "../../store/chatSlice";
+import {useSelector} from "react-redux";
 
 const ChatInput: React.FC = () => {
     const [message, setMessage] = useState("");
+    const chatState = useSelector(selectChatState);
 
     const onSendPress = () => {
         services.socketService.emit("send-message", {
-            type: "messages",
-            command: "create",
-            payload: {
-                message: message,
-            }
+            user: localStorage.getItem("user"),
+            message: message,
+            room: chatState.currentRoom
         })
     }
 

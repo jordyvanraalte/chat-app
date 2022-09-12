@@ -38,6 +38,7 @@ export const createRoomHandler = (socket: Socket) => {
                 if (user) {
                     const room = createRoom(payload.name, user);
                     sendToAll(socket, "created-room", JSON.stringify(room));
+                    //extra send to own client
                     send(socket, "created-room", JSON.stringify(room));
                 }
             }
@@ -93,6 +94,7 @@ export const sendMessageHandler = (socket: Socket) => {
             if (room && user) {
                 const message = createMessage(user, payload.message);
                 sendToAllInRoom(room, "new-message", JSON.stringify(message));
+                send(socket, "new-message", JSON.stringify(message));
             }
         }
     })

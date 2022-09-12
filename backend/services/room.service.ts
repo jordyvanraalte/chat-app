@@ -1,5 +1,6 @@
 import User from "../entities/user";
 import Room from "../entities/room";
+import {v4 as uuidv4} from 'uuid';
 
 const rooms = Array<Room>();
 
@@ -8,7 +9,7 @@ export const listRooms = () => {
 }
 
 export const getRoom = (id: string): Room | undefined => {
-    return rooms.find(room => room.id === id);
+   return rooms.find((room) => room.id === id);
 }
 
 export const createRoom = (name: string, user: User): Room => {
@@ -19,7 +20,7 @@ export const createRoom = (name: string, user: User): Room => {
 
 export const joinRoom = (id: string, user: User) => {
     const room = rooms.find(room => room.id === id);
-    if (room) {
+    if (room && !room.users.find(u => u.id === user.id)) {
         room.users.push(user);
     }
     return room;
@@ -40,6 +41,7 @@ export const roomUsers = (id: string) => {
 
 export const createMessage = (user: User, message: string) => {
     return {
+        id: uuidv4(),
         user,
         message,
         timestamp: Date.now()

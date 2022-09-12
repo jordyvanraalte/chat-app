@@ -1,30 +1,32 @@
 import React, {useEffect, useState} from 'react';
 import {services} from "../../lib/services";
 import Room from "../../entities/room";
+import {useDispatch, useSelector} from "react-redux";
+import {selectChatState, setCurrentRoom} from "../../store/chatSlice";
 
-const RoomList: React.FC = () => {
-    const [rooms, setRooms] = useState<Room[]>([]);
+export interface IRoomList {
+    rooms: Room[]
+}
 
-    useEffect(() => {
-        services.socketService.on("listed-rooms", (data) => {
-            setRooms(JSON.parse(data))
+const RoomList: React.FC<IRoomList> = ({ rooms}) => {
+    const dispatch = useDispatch();
+    const currentRoom = useSelector(selectChatState).currentRoom
+
+    const onClick = (room: Room) => {
+        services.socketService.emit("join-room", {
+            room: room.id,
+            user: localStorage.getItem("user")
         })
-
-        services.socketService.on("created-room", (data) => {
-            console.log(data)
-            const room = JSON.parse(data)
-            setRooms([...rooms, room])
-        })
-    })
-
-
+        dispatch(setCurrentRoom(room.id))
+    }
 
     return (
         <div className="flex flex-col w-2/5 border-r-2 overflow-y-auto h-full">
                 {
                     rooms.map((room) => {
                       return(
-                          <div key={room.id} className="flex flex-row py-4 px-2 justify-center items-center border-b-2">
+                          <div key={room.id} onClick={() => onClick(room)} className={"flex flex-row py-4 px-2 justify-center items-center border-b-2 "
+                            + (currentRoom === room.id ? "bg-blue-300" : "bg-white")} >
                               <div className="w-full">
                                 <div className="text-lg font-semibold">Room: {room.name}</div>
                                 <span className="text-gray-500">Room id: {room.id}</span>
