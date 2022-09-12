@@ -1,5 +1,5 @@
 import WebSocket, {WebSocketServer} from "ws";
-import {listRooms, createRoom, joinRoom, leaveRoom, roomUsers, createMessage} from "./room.service";
+import {listRooms, createRoom, joinRoom, leaveRoom, roomUsers, createMessage, getRoom} from "./room.service";
 import {addUserSocket, createUser, getUser, listUserSockets} from "./user.service";
 import Room from "../entities/room";
 
@@ -45,19 +45,40 @@ export const handleSocketRequest = (socket: WebSocket, server: WebSocketServer, 
                 case "create":
                     if (user) {
                         const room = createRoom(payload.name, user);
-                        sendToAll(server, JSON.stringify(room));
+                        sendToAll(server, JSON.stringify({
+                            type: "rooms",
+                            command: "create",
+                            payload: {
+                                message: "Room created",
+                                room
+                            }
+                        }));
                     }
                     break;
                 case "join":
                     if (user) {
                         const joinedRoom = joinRoom(payload.id, user);
-                        sendToAllInRoom(joinedRoom, JSON.stringify(joinedRoom));
+                        sendToAllInRoom(joinedRoom, JSON.stringify({
+                            type: "rooms",
+                            command: "join-message",
+                            payload: {
+                                "message": `${user.username} joined the room`,
+                            }
+                        }));
                     }
                     break;
                 case "leave":
                     if (user) {
                         const leftRoom = leaveRoom(payload.id, user);
-                        sendToAllInRoom(leftRoom, JSON.stringify(leftRoom));
+                        sendToAllInRoom(leftRoom, JSON.stringify(
+                            {
+                                type: "rooms",
+                                command: "left-message",
+                                payload: {
+                                    "message": `${user.username} left the room`,
+                                }
+                            }
+                        ));
                     }
                     break;
                 case "users":
@@ -67,7 +88,9 @@ export const handleSocketRequest = (socket: WebSocket, server: WebSocketServer, 
                 case "message":
                     if (user) {
                         const message = createMessage(user, payload.message);
-                        sendToAllInRoom(payload.room, JSON.stringify(message));
+                        const room = getRoom(payload.id);
+                        if(room)
+                            sendToAllInRoom(room, JSON.stringify(message));
                     }
                     break;
             }

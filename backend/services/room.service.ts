@@ -7,6 +7,10 @@ export const listRooms = () => {
     return rooms;
 }
 
+export const getRoom = (id: string): Room | undefined => {
+    return rooms.find(room => room.id === id);
+}
+
 export const createRoom = (name: string, user: User): Room => {
     const room = new Room(name, [user]);
     rooms.push(room);
