@@ -1,6 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import dotenv from 'dotenv';
-import {handleSocketRequest} from "./services/websocket.service";
+import {handleConnection, handleSocketRequest} from "./services/websocket.service";
 
 dotenv.config();
 
@@ -8,7 +8,11 @@ dotenv.config();
 const port: number | undefined = process.env.PORT;
 const wss = new WebSocketServer({ port });
 
-wss.on('connection', (ws: WebSocket) => {
+wss.on('connection', (ws: WebSocket) =>
+{
+    const user = handleConnection(ws, wss);
+    ws.send(JSON.stringify(user));
+
     ws.on("message", (message: string) => {
         handleSocketRequest(ws, wss, message);
     })
