@@ -1,4 +1,4 @@
-import User from "../models/user";
+import User from "../entities/user";
 import WebSocket from "ws";
 
 const users = Array<User>();

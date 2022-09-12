@@ -1,5 +1,5 @@
-import User from "../models/user";
-import Room from "../models/room";
+import User from "../entities/user";
+import Room from "../entities/room";
 
 const rooms = Array<Room>();
 

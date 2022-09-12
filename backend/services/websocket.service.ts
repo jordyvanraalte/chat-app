@@ -1,7 +1,7 @@
 import WebSocket, {WebSocketServer} from "ws";
 import {listRooms, createRoom, joinRoom, leaveRoom, roomUsers, createMessage} from "./room.service";
 import {addUserSocket, createUser, getUser, listUserSockets} from "./user.service";
-import Room from "../models/room";
+import Room from "../entities/room";
 
 
 const stringToJSON = (message: string) => {
