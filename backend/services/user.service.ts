@@ -1,8 +1,9 @@
 import User from "../entities/user";
 import WebSocket from "ws";
+import {Socket} from "socket.io";
 
 const users = Array<User>();
-const userSockets = new Map<String, WebSocket>();
+const userSockets = new Map<String, Socket>();
 
 
 export const listUsers = () => {
@@ -17,7 +18,7 @@ export const listUserSockets = () => {
     return userSockets;
 }
 
-export const addUserSocket = (user: User, socket: WebSocket) => {
+export const addUserSocket = (user: User, socket: Socket) => {
     userSockets.set(user.id, socket);
 }
 

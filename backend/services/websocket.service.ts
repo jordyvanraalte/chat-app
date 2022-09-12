@@ -1,6 +1,6 @@
-import WebSocket, {WebSocketServer} from "ws";
 import {listRooms, createRoom, joinRoom, leaveRoom, roomUsers, createMessage, getRoom} from "./room.service";
 import {addUserSocket, createUser, getUser, listUserSockets} from "./user.service";
+import {Socket} from "socket.io"
 import Room from "../entities/room";
 
 
@@ -8,10 +8,8 @@ const stringToJSON = (message: string) => {
     return JSON.parse(message);
 }
 
-const sendToAll = (wss: WebSocketServer, message: string) => {
-    wss.clients.forEach(client => {
-        client.send(message);
-    })
+const sendToAll = (socket :Socket, message: string) => {
+    socket.broadcast.emit(message);
 }
 
 const sendToAllInRoom = (room: Room | undefined, message: string) => {
@@ -26,11 +24,11 @@ const sendToAllInRoom = (room: Room | undefined, message: string) => {
     }
 }
 
-const send = (ws: WebSocket, message: string) => {
-    ws.send(message);
+const send = (s: Socket, message: string) => {
+    s.emit(message);
 }
 
-export const handleSocketRequest = (socket: WebSocket, server: WebSocketServer, message: string) => {
+export const handleSocketRequest = (socket: Socket,  message: string) => {
     const parsedMessage = stringToJSON(message);
     const {type, command, payload} = parsedMessage;
 
@@ -45,7 +43,7 @@ export const handleSocketRequest = (socket: WebSocket, server: WebSocketServer, 
                 case "create":
                     if (user) {
                         const room = createRoom(payload.name, user);
-                        sendToAll(server, JSON.stringify({
+                        sendToAll(socket, JSON.stringify({
                             type: "rooms",
                             command: "create",
                             payload: {
@@ -97,7 +95,7 @@ export const handleSocketRequest = (socket: WebSocket, server: WebSocketServer, 
     }
 }
 
-export const handleConnection = (socket: WebSocket, server: WebSocketServer) => {
+export const handleConnection = (socket: Socket) => {
     const user = createUser("test", "test");
     addUserSocket(user, socket);
     return user
