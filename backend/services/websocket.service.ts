@@ -23,69 +23,79 @@ const send = (s: Socket,event:string, message: string) => {
     s.emit(event, message);
 }
 
-export const handleSocketRequest = (socket: Socket,  message: any) => {
-    const {type, command, payload} = message;
+export const listRoomsHandler = (socket: Socket) => {
+    socket.on("list-rooms", () => {
+        const rooms = listRooms();
+        send(socket, "listed-rooms", JSON.stringify(rooms));
+    })
+}
 
-    let user = null
-    if(payload?.user)
-        user = getUser(payload.user);
-
-    switch (type) {
-        case "rooms":
-            switch (command) {
-                case "list":
-                    send(socket, "list", JSON.stringify(listRooms()));
-                    break;
-                case "create":
-                    if (user) {
-                        const room = createRoom(payload.name, user);
-                        sendToAll(socket, "create", JSON.stringify({
-                            type: "rooms",
-                            payload: {
-                                message: "Room created",
-                                room
-                            }
-                        }));
-                    }
-                    break;
-                case "join":
-                    if (user) {
-                        const joinedRoom = joinRoom(payload.id, user);
-                        sendToAllInRoom(joinedRoom, "join-message", JSON.stringify({
-                            type: "rooms",
-                            payload: {
-                                "message": `${user.username} joined the room`,
-                            }
-                        }));
-                    }
-                    break;
-                case "leave":
-                    if (user) {
-                        const leftRoom = leaveRoom(payload.id, user);
-                        sendToAllInRoom(leftRoom, "leave-message", JSON.stringify(
-                            {
-                                type: "rooms",
-                                payload: {
-                                    "message": `${user.username} left the room`,
-                                }
-                            }
-                        ));
-                    }
-                    break;
-                case "users":
-                    const users = roomUsers(payload.id);
-                    send(socket, "users", JSON.stringify(users));
-                    break;
-                case "message":
-                    if (user) {
-                        const message = createMessage(user, payload.message);
-                        const room = getRoom(payload.id);
-                        if(room)
-                            sendToAllInRoom(room, "room-message", JSON.stringify(message));
-                    }
-                    break;
+export const createRoomHandler = (socket: Socket) => {
+    socket.on("create-room", (payload) => {
+        if (payload?.user && payload?.name) {
+            {
+                const user = getUser(payload.user);
+                if (user) {
+                    const room = createRoom(payload.name, user);
+                    sendToAll(socket, "created-room", JSON.stringify(room));
+                    send(socket, "created-room", JSON.stringify(room));
+                }
             }
-    }
+        }
+    })
+}
+
+export const joinRoomHandler = (socket: Socket) => {
+    socket.on("join-room", (payload) => {
+        if(payload?.user && payload?.room)
+        {
+            const user = getUser(payload.user);
+            const room = getRoom(payload.room);
+            if (user && room) {
+                joinRoom(room.id, user);
+                const message = `${user.username} joined the room`;
+                sendToAllInRoom(room, "joined-room", JSON.stringify(message));
+            }
+        }
+    })
+}
+
+export const leaveRoomHandler = (socket: Socket) => {
+    socket.on("leave-room", (payload) => {
+        if(payload?.user && payload?.room)
+        {
+            const user = getUser(payload.user);
+            const room = getRoom(payload.room);
+            if (user && room) {
+                leaveRoom(room.id, user);
+                sendToAllInRoom(room, "leave-room", JSON.stringify(room));
+            }
+        }
+    })
+}
+
+export const listRoomUsersHandler = (socket: Socket) => {
+    socket.on("list-room-users", (payload) => {
+        if(payload?.room)
+        {
+                const users = roomUsers(payload.room);
+                send(socket, "list-room-users", JSON.stringify(users));
+        }
+    })
+}
+
+export const sendMessageHandler = (socket: Socket) => {
+    socket.on("send-message", (payload) => {
+        if(payload?.room && payload?.message)
+        {
+            const room = getRoom(payload.room);
+            const user = getUser(payload.user);
+            if (room && user) {
+                const message = createMessage(user, payload.message);
+                sendToAllInRoom(room, "new-message", JSON.stringify(message));
+            }
+        }
+    })
 }
 
 export const handleConnection = (socket: Socket) => {

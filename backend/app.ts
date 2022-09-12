@@ -1,5 +1,11 @@
 import dotenv from 'dotenv';
-import {handleConnection, handleSocketRequest} from "./services/websocket.service";
+import {
+    createRoomHandler,
+    handleConnection,
+    joinRoomHandler,
+    leaveRoomHandler,
+    listRoomsHandler, listRoomUsersHandler, sendMessageHandler
+} from "./services/websocket.service";
 import { createServer } from "http"
 import { Server } from "socket.io";
 
@@ -18,13 +24,14 @@ const io = new Server(httpServer, {
 })
 
 io.on('connection', (socket ) => {
-    console.log(`New connection ${socket.id}`)
     const user = handleConnection(socket);
-    socket.emit(JSON.stringify(user))
-
-    socket.on('message', (message) => {
-        handleSocketRequest(socket, message)
-    })
+    socket.emit("user", JSON.stringify(user))
+    listRoomsHandler(socket);
+    createRoomHandler(socket);
+    joinRoomHandler(socket);
+    leaveRoomHandler(socket);
+    sendMessageHandler(socket);
+    listRoomUsersHandler(socket);
 })
 
 
