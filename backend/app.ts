@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import {handleSocketRequest} from "./services/websocket.service";
+import {handleConnection, handleSocketRequest} from "./services/websocket.service";
 import { createServer } from "http"
 import { Server } from "socket.io";
 
@@ -19,6 +19,9 @@ const io = new Server(httpServer, {
 
 io.on('connection', (socket ) => {
     console.log(`New connection ${socket.id}`)
+    const user = handleConnection(socket);
+    socket.emit(JSON.stringify(user))
+
     socket.on('message', (message) => {
         handleSocketRequest(socket, message)
     })

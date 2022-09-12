@@ -3,49 +3,44 @@ import {addUserSocket, createUser, getUser, listUserSockets} from "./user.servic
 import {Socket} from "socket.io"
 import Room from "../entities/room";
 
-
-const stringToJSON = (message: string) => {
-    return JSON.parse(message);
+const sendToAll = (socket :Socket, event:string, message: string) => {
+    socket.broadcast.emit(event, message);
 }
 
-const sendToAll = (socket :Socket, message: string) => {
-    socket.broadcast.emit(message);
-}
-
-const sendToAllInRoom = (room: Room | undefined, message: string) => {
+const sendToAllInRoom = (room: Room | undefined, event: string, message: string) => {
     if (room) {
         const users = listUserSockets()
         room.users.forEach(user => {
             const socket = users.get(user.id);
             if (socket) {
-                send(socket, message);
+                send(socket, event, message);
             }
         })
     }
 }
 
-const send = (s: Socket, message: string) => {
-    s.emit(message);
+const send = (s: Socket,event:string, message: string) => {
+    s.emit(event, message);
 }
 
-export const handleSocketRequest = (socket: Socket,  message: string) => {
-    const parsedMessage = stringToJSON(message);
-    const {type, command, payload} = parsedMessage;
+export const handleSocketRequest = (socket: Socket,  message: any) => {
+    const {type, command, payload} = message;
 
-    const user = getUser(payload.user);
+    let user = null
+    if(payload?.user)
+        user = getUser(payload.user);
 
     switch (type) {
         case "rooms":
             switch (command) {
                 case "list":
-                    send(socket, JSON.stringify(listRooms()));
+                    send(socket, "list", JSON.stringify(listRooms()));
                     break;
                 case "create":
                     if (user) {
                         const room = createRoom(payload.name, user);
-                        sendToAll(socket, JSON.stringify({
+                        sendToAll(socket, "create", JSON.stringify({
                             type: "rooms",
-                            command: "create",
                             payload: {
                                 message: "Room created",
                                 room
@@ -56,9 +51,8 @@ export const handleSocketRequest = (socket: Socket,  message: string) => {
                 case "join":
                     if (user) {
                         const joinedRoom = joinRoom(payload.id, user);
-                        sendToAllInRoom(joinedRoom, JSON.stringify({
+                        sendToAllInRoom(joinedRoom, "join-message", JSON.stringify({
                             type: "rooms",
-                            command: "join-message",
                             payload: {
                                 "message": `${user.username} joined the room`,
                             }
@@ -68,10 +62,9 @@ export const handleSocketRequest = (socket: Socket,  message: string) => {
                 case "leave":
                     if (user) {
                         const leftRoom = leaveRoom(payload.id, user);
-                        sendToAllInRoom(leftRoom, JSON.stringify(
+                        sendToAllInRoom(leftRoom, "leave-message", JSON.stringify(
                             {
                                 type: "rooms",
-                                command: "left-message",
                                 payload: {
                                     "message": `${user.username} left the room`,
                                 }
@@ -81,14 +74,14 @@ export const handleSocketRequest = (socket: Socket,  message: string) => {
                     break;
                 case "users":
                     const users = roomUsers(payload.id);
-                    send(socket, JSON.stringify(users));
+                    send(socket, "users", JSON.stringify(users));
                     break;
                 case "message":
                     if (user) {
                         const message = createMessage(user, payload.message);
                         const room = getRoom(payload.id);
                         if(room)
-                            sendToAllInRoom(room, JSON.stringify(message));
+                            sendToAllInRoom(room, "room-message", JSON.stringify(message));
                     }
                     break;
             }
