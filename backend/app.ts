@@ -1,14 +1,16 @@
-import express from 'express';
+import WebSocket, { WebSocketServer } from 'ws';
 import dotenv from 'dotenv';
+import {handleSocketRequest} from "./services/websocket.service";
+
 dotenv.config();
 
-const app = express();
-const port = process.env.PORT;
+// @ts-ignore
+const port: number | undefined = process.env.PORT;
+const wss = new WebSocketServer({ port });
 
-app.get('/', (req, res) => {
-    res.send('Express + TypeScript Server');
-});
+wss.on('connection', (ws: WebSocket) => {
+    ws.on("message", (message: string) => {
+        handleSocketRequest(ws, wss, message);
+    })
+})
 
-app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
-});
