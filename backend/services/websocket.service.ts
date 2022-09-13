@@ -54,8 +54,9 @@ export const joinRoomHandler = (socket: Socket) => {
             const room = getRoom(payload.room);
             if (user && room) {
                 joinRoom(room.id, user);
-                const message = `${user.username} joined the room`;
-                sendToAllInRoom(room, "joined-room", JSON.stringify(message));
+                const message = `joined the room`;
+                sendToAllInRoom(room, "joined-room", JSON.stringify(createMessage(user, message)));
+                send(socket, "joined-room", JSON.stringify(createMessage(user, "You joined the room!")));
             }
         }
     })
@@ -69,7 +70,8 @@ export const leaveRoomHandler = (socket: Socket) => {
             const room = getRoom(payload.room);
             if (user && room) {
                 leaveRoom(room.id, user);
-                sendToAllInRoom(room, "leave-room", JSON.stringify(room));
+                const message = `left the room`;
+                sendToAllInRoom(room, "left-room", JSON.stringify(createMessage(user, message)));
             }
         }
     })
