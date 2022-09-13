@@ -26,8 +26,8 @@ export const removeUserSocket = (user: User) => {
     userSockets.delete(user.id);
 }
 
-export const createUser = (username: string, avatar: string): User => {
-    const user = new User(username, avatar);
+export const createUser = (): User => {
+    const user = new User();
     users.push(user);
     return user;
 }

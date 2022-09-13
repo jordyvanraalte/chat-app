@@ -44,7 +44,7 @@ export const createMessage = (user: User, message: string) => {
     return {
         id: uuidv4(),
         message: fullMessage,
-        user: user.id,
+        user: user,
         timestamp: Date.now()
     }
 }
