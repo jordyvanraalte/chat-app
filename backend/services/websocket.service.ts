@@ -103,7 +103,7 @@ export const sendMessageHandler = (socket: Socket) => {
 }
 
 export const handleConnection = (socket: Socket) => {
-    const user = createUser("test", "test");
+    const user = createUser();
     addUserSocket(user, socket);
     return user
 }
