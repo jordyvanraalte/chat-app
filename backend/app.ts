@@ -1,14 +1,41 @@
-import express from 'express';
 import dotenv from 'dotenv';
+import {
+    createRoomHandler,
+    handleConnection,
+    joinRoomHandler,
+    leaveRoomHandler,
+    listRoomsHandler, listRoomUsersHandler, onDisconnect, sendMessageHandler
+} from "./services/websocket.service";
+import { createServer } from "http"
+import { Server } from "socket.io";
+
+
 dotenv.config();
 
-const app = express();
-const port = process.env.PORT;
+// @ts-ignore
+const port: number = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-    res.send('Express + TypeScript Server');
-});
+const httpServer = createServer();
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+})
 
-app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+io.on('connection', (socket ) => {
+    const user = handleConnection(socket);
+    socket.emit("user", JSON.stringify(user))
+    listRoomsHandler(socket);
+    createRoomHandler(socket);
+    joinRoomHandler(socket);
+    leaveRoomHandler(socket);
+    sendMessageHandler(socket);
+    listRoomUsersHandler(socket);
+    onDisconnect(socket);
+})
+
+
+httpServer.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+})
