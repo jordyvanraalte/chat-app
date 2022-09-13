@@ -40,10 +40,11 @@ export const roomUsers = (id: string) => {
 }
 
 export const createMessage = (user: User, message: string) => {
+    const fullMessage = `${user.username}: ${message}`;
     return {
         id: uuidv4(),
-        user,
-        message,
+        message: fullMessage,
+        user: user.id,
         timestamp: Date.now()
     }
 }
