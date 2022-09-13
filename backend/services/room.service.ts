@@ -31,13 +31,19 @@ export const leaveRoom = (id: string, user: User) => {
     if (room) {
         room.users = room.users.filter(u => u.id !== user.id);
     }
+    console.log(room);
     return room;
+}
+
+export const getUserRoom = (user: User) => {
+    return rooms.find(room => room.users.find(u => u.id === user.id));
 }
 
 export const roomUsers = (id: string) => {
     const room = rooms.find(room => room.id === id);
     return room ? room.users : [];
 }
+
 
 export const createMessage = (user: User, message: string) => {
     const fullMessage = `${user.username}: ${message}`;

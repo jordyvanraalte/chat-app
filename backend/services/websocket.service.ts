@@ -1,5 +1,22 @@
-import {listRooms, createRoom, joinRoom, leaveRoom, roomUsers, createMessage, getRoom} from "./room.service";
-import {addUserSocket, createUser, getUser, listUserSockets} from "./user.service";
+import {
+    listRooms,
+    createRoom,
+    joinRoom,
+    leaveRoom,
+    roomUsers,
+    createMessage,
+    getRoom,
+    getUserRoom
+} from "./room.service";
+import {
+    addUserSocket,
+    createUser,
+    getUser,
+    getUserSocketFromSocket,
+    listUserSockets,
+    removeUser,
+    removeUserSocket
+} from "./user.service";
 import {Socket} from "socket.io"
 import Room from "../entities/room";
 
@@ -39,7 +56,8 @@ export const createRoomHandler = (socket: Socket) => {
                     const room = createRoom(payload.name, user);
                     sendToAll(socket, "created-room", JSON.stringify(room));
                     //extra send to own client
-                    send(socket, "created-room", JSON.stringify(room));
+                    send(socket, "own-created-room", JSON.stringify(room));
+                    send(socket, "own-joined-room", JSON.stringify(createMessage(user, "You joined the room!")));
                 }
             }
         }
@@ -56,7 +74,7 @@ export const joinRoomHandler = (socket: Socket) => {
                 joinRoom(room.id, user);
                 const message = `joined the room`;
                 sendToAllInRoom(room, "joined-room", JSON.stringify(createMessage(user, message)));
-                send(socket, "joined-room", JSON.stringify(createMessage(user, "You joined the room!")));
+                send(socket, "own-joined-room", JSON.stringify(createMessage(user, "You joined the room!")));
             }
         }
     })
@@ -98,6 +116,25 @@ export const sendMessageHandler = (socket: Socket) => {
                 sendToAllInRoom(room, "new-message", JSON.stringify(message));
                 send(socket, "new-message", JSON.stringify(message));
             }
+        }
+    })
+}
+
+export const onDisconnect = (socket: Socket) => {
+    socket.on("disconnect", () => {
+        const user = getUserSocketFromSocket(socket);
+        if(user)
+        {
+            const room = getUserRoom(user)
+            if(room)
+            {
+                leaveRoom(room.id, user);
+                const message = `left the room`;
+                sendToAllInRoom(room, "left-room", JSON.stringify(createMessage(user, message)));
+            }
+
+            removeUser(user);
+            removeUserSocket(user);
         }
     })
 }

@@ -4,7 +4,7 @@ import {
     handleConnection,
     joinRoomHandler,
     leaveRoomHandler,
-    listRoomsHandler, listRoomUsersHandler, sendMessageHandler
+    listRoomsHandler, listRoomUsersHandler, onDisconnect, sendMessageHandler
 } from "./services/websocket.service";
 import { createServer } from "http"
 import { Server } from "socket.io";
@@ -32,20 +32,10 @@ io.on('connection', (socket ) => {
     leaveRoomHandler(socket);
     sendMessageHandler(socket);
     listRoomUsersHandler(socket);
+    onDisconnect(socket);
 })
 
 
 httpServer.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })
-
-
-// wss.on('connection', (ws: WebSocket) =>
-// {
-//     const user = handleConnection(ws, wss);
-//     ws.send(JSON.stringify(user));
-//
-//     ws.on("message", (message: string) => {
-//         handleSocketRequest(ws, wss, message);
-//     })
-// })

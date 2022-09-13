@@ -12,7 +12,7 @@ import {
     addRoom,
     addRoomUser, removeRoomUser,
     selectChatState,
-    setCurrentRoom,
+    setCurrentRoom, setMessages,
     setRooms,
     setRoomUsers
 } from "../../store/chatSlice";
@@ -40,15 +40,30 @@ const ChatComponent: React.FC = () => {
             dispatch(setRooms(JSON.parse(data)))
         })
 
-        services.socketService.on("created-room", (data) => {
+        services.socketService.on("own-created-room", (data) => {
             const room = JSON.parse(data)
             dispatch(addRoom(room))
             dispatch(setCurrentRoom(room.id))
+            dispatch(setMessages([]))
+            services.socketService.emit("list-room-users", {
+                room: room.id
+            })
+        })
+
+        services.socketService.on("created-room", (data) => {
+            const room = JSON.parse(data)
+            dispatch(addRoom(room))
+        })
+
+        services.socketService.on("own-joined-room", (data) => {
+            const message = JSON.parse(data)
+            dispatch(setMessages([]))
+            dispatch(addMessage(message))
+            dispatch(addRoomUser(message.user))
         })
 
         services.socketService.on("joined-room", (data) => {
             const message = JSON.parse(data)
-            console.log(data)
             dispatch(addMessage(message))
             dispatch(addRoomUser(message.user))
         })

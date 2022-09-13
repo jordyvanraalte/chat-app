@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {services} from "../../lib/services";
 import Room from "../../entities/room";
 import {useDispatch, useSelector} from "react-redux";
-import {selectChatState, setCurrentRoom} from "../../store/chatSlice";
+import {selectChatState, setCurrentRoom, setMessages, setRoomUsers} from "../../store/chatSlice";
 
 export interface IRoomList {
     rooms: Room[]
@@ -13,13 +13,18 @@ const RoomList: React.FC<IRoomList> = ({ rooms}) => {
     const currentRoom = useSelector(selectChatState).currentRoom
 
     const onClick = (room: Room) => {
-        if (currentRoom !== "") {
-            services.socketService.emit("leave-room", {
-                room: currentRoom,
-            })
-        }
-
         if(currentRoom !== room.id){
+            if (currentRoom !== "") {
+                services.socketService.emit("leave-room", {
+                    room: currentRoom,
+                    user: localStorage.getItem("user"),
+                })
+
+                dispatch(setCurrentRoom(""))
+                dispatch(setMessages([]))
+                dispatch(setRoomUsers([]))
+            }
+
             services.socketService.emit("join-room", {
                 room: room.id,
                 user: localStorage.getItem("user")

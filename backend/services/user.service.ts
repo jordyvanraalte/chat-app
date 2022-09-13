@@ -26,6 +26,15 @@ export const removeUserSocket = (user: User) => {
     userSockets.delete(user.id);
 }
 
+export const removeUser = (user: User) => {
+    users.splice(users.indexOf(user), 1);
+}
+
+export const getUserSocketFromSocket = (socket: Socket) => {
+    const user = users.find(user => userSockets.get(user.id) === socket);
+    return user;
+}
+
 export const createUser = (): User => {
     const user = new User();
     users.push(user);

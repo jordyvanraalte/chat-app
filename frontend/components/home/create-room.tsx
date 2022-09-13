@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import {services} from "../../lib/services";
 import User from "../../entities/user";
-import {useSelector} from "react-redux";
-import {selectChatState} from "../../store/chatSlice";
+import {useDispatch, useSelector} from "react-redux";
+import {selectChatState, setCurrentRoom, setMessages, setRoomUsers} from "../../store/chatSlice";
 
 export interface ICreateRoom {
     users: User[]
@@ -10,8 +10,21 @@ export interface ICreateRoom {
 
 const CreateRoom: React.FC<ICreateRoom> = ({ users}) => {
     const [name, setName] = useState("");
+    const currentRoom = useSelector(selectChatState).currentRoom
+    const dispatch = useDispatch();
 
     const onRoomCreate = () => {
+        if (currentRoom !== "") {
+            services.socketService.emit("leave-room", {
+                room: currentRoom,
+                user: localStorage.getItem("user"),
+            })
+
+            dispatch(setCurrentRoom(""))
+            dispatch(setMessages([]))
+            dispatch(setRoomUsers([]))
+        }
+
         const user = localStorage.getItem("user");
         services.socketService.emit("create-room", {
             name,
