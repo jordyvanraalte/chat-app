@@ -1,6 +1,6 @@
 import React from "react";
 import {services} from "../../lib/services";
-import {selectChatState, setCurrentRoom, setMessages} from "../../store/chatSlice";
+import {selectChatState, setCurrentRoom, setMessages, setRoomUsers} from "../../store/chatSlice";
 import {useDispatch, useSelector} from "react-redux";
 
 const ChatHeader: React.FC = () => {
@@ -14,6 +14,7 @@ const ChatHeader: React.FC = () => {
         })
         dispatch(setCurrentRoom(""))
         dispatch(setMessages([]))
+        dispatch(setRoomUsers([]))
     }
 
     return (

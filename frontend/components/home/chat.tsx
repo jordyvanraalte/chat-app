@@ -7,7 +7,15 @@ import CreateRoom from "./create-room";
 import SocketService from "../../lib/services/socket.service";
 import {services} from "../../lib/services";
 import {useDispatch, useSelector} from "react-redux";
-import {addMessage, addRoom, selectChatState, setCurrentRoom, setRooms, setRoomUsers} from "../../store/chatSlice";
+import {
+    addMessage,
+    addRoom,
+    addRoomUser, removeRoomUser,
+    selectChatState,
+    setCurrentRoom,
+    setRooms,
+    setRoomUsers
+} from "../../store/chatSlice";
 import {json} from "stream/consumers";
 
 const ChatComponent: React.FC = () => {
@@ -40,12 +48,15 @@ const ChatComponent: React.FC = () => {
 
         services.socketService.on("joined-room", (data) => {
             const message = JSON.parse(data)
+            console.log(data)
             dispatch(addMessage(message))
+            dispatch(addRoomUser(message.user))
         })
 
         services.socketService.on("left-room", (data) => {
             const message = JSON.parse(data)
             dispatch(addMessage(message))
+            dispatch(removeRoomUser(message.user))
         })
 
         services.socketService.on("new-message", (data) => {

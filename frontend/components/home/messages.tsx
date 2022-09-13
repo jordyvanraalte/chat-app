@@ -8,11 +8,11 @@ export interface IMessages {
 }
 
 const Messages: React.FC<IMessages> = ({ messages}) => {
-    return (<div className="w-full px-5 flex flex-col justify-between">
+    return (<div className="w-full px-5 flex flex-col justify-between overflow-y-auto">
         <div className="flex flex-col mt-5">
                 {
-                    messages.map((message, index) => {
-                        return message.user === localStorage.getItem("user") ? (
+                    messages.map((message) => {
+                        return message.user.id === localStorage.getItem("user") ? (
                             <div key={message.id} className="flex justify-end mb-4">
                                 <div
                                     className="mr-2 py-3 px-4 bg-blue-400 rounded-bl-3xl rounded-tl-3xl rounded-tr-xl text-white"
@@ -20,14 +20,14 @@ const Messages: React.FC<IMessages> = ({ messages}) => {
                                     {message.message}
                                 </div>
                                 <img
-                                    src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
+                                    src={message.user.avatar}
                                     className="object-cover h-8 w-8 rounded-full"
                                     alt=""
                                 />
                             </div>
                         ) : (    <div key={message.id} className="flex justify-start mb-4">
                             <img
-                                src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
+                                src={message.user.avatar}
                                 className="object-cover h-8 w-8 rounded-full"
                                 alt=""
                             />

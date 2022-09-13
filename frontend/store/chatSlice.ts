@@ -39,8 +39,16 @@ export const chatSlice = createSlice({
         setCurrentRoom(state, action) {
             state.currentRoom = action.payload;
         },
+        addRoomUser(state, action) {
+            if (state.roomUsers.find((user) => user.id === action.payload.id)) {
+                return;
+            }
+            state.roomUsers.push(action.payload);
+        },
+        removeRoomUser(state, action) {
+            state.roomUsers = state.roomUsers.filter((user) => user.id !== action.payload.id);
+        },
         setRoomUsers(state, action) {
-            console.log(action.payload)
             state.roomUsers = action.payload;
         },
         addMessage(state, action) {
@@ -63,7 +71,7 @@ export const chatSlice = createSlice({
     },
 });
 
-export const { setRooms, setRoomUsers, setMessages, setCurrentRoom, addRoom, addMessage } = chatSlice.actions;
+export const { setRooms, setRoomUsers, setMessages, setCurrentRoom, addRoom, addMessage, addRoomUser,removeRoomUser } = chatSlice.actions;
 
 export const selectChatState = (state: AppState) => state.chat;
 

@@ -19,16 +19,18 @@ const RoomList: React.FC<IRoomList> = ({ rooms}) => {
             })
         }
 
-        services.socketService.emit("join-room", {
-            room: room.id,
-            user: localStorage.getItem("user")
-        })
+        if(currentRoom !== room.id){
+            services.socketService.emit("join-room", {
+                room: room.id,
+                user: localStorage.getItem("user")
+            })
 
-        services.socketService.emit("list-room-users", {
-            room: room.id
-        })
+            services.socketService.emit("list-room-users", {
+                room: room.id
+            })
 
-        dispatch(setCurrentRoom(room.id))
+            dispatch(setCurrentRoom(room.id))
+        }
     }
 
     return (

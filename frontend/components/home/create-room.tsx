@@ -45,7 +45,7 @@ const CreateRoom: React.FC<ICreateRoom> = ({ users}) => {
                                     <div className="flex w-full justify-between">
                                         <span className="text-gray-500">{user.username}</span>
                                         <img
-                                            src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
+                                            src={user.avatar}
                                             className="object-cover h-8 w-8 rounded-full"
                                             alt=""
                                         />
