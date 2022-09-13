@@ -16,7 +16,6 @@ import {
     setRooms,
     setRoomUsers
 } from "../../store/chatSlice";
-import {json} from "stream/consumers";
 
 const ChatComponent: React.FC = () => {
     const chatState = useSelector(selectChatState);

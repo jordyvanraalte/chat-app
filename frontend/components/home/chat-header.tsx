@@ -24,7 +24,8 @@ const ChatHeader: React.FC = () => {
                         onClick={() => onLeavePress()}
                         className="text-white bg-blue-400 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-5 px-20 rounded-xl ml-4 focus:outline-none">Leave chat
                 </button>
-    </div>)
+        </div>
+    )
 }
 
 

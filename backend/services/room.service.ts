@@ -31,7 +31,6 @@ export const leaveRoom = (id: string, user: User) => {
     if (room) {
         room.users = room.users.filter(u => u.id !== user.id);
     }
-    console.log(room);
     return room;
 }
 

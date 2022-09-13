@@ -25,18 +25,19 @@ const Messages: React.FC<IMessages> = ({ messages}) => {
                                     alt=""
                                 />
                             </div>
-                        ) : (    <div key={message.id} className="flex justify-start mb-4">
-                            <img
-                                src={message.user.avatar}
-                                className="object-cover h-8 w-8 rounded-full"
-                                alt=""
-                            />
-                            <div
-                                className="ml-2 py-3 px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white"
-                            >
-                                {message.message}
+                        ) : (
+                            <div key={message.id} className="flex justify-start mb-4">
+                                <img
+                                    src={message.user.avatar}
+                                    className="object-cover h-8 w-8 rounded-full"
+                                    alt=""
+                                />
+                                <div
+                                    className="ml-2 py-3 px-4 bg-gray-400 rounded-br-3xl rounded-tr-3xl rounded-tl-xl text-white"
+                                >
+                                    {message.message}
+                                </div>
                             </div>
-                        </div>
                         )
                     })
                 }
