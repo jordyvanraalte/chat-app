@@ -40,14 +40,13 @@ export const chatSlice = createSlice({
             state.currentRoom = action.payload;
         },
         setRoomUsers(state, action) {
+            console.log(action.payload)
             state.roomUsers = action.payload;
         },
         addMessage(state, action) {
             if (state.messages.find((message) => message.id === action.payload.id)) {
                  return;
             }
-            console.log("Adding message", action.payload);
-
             state.messages.push(action.payload);
         },
         setMessages(state, action) {

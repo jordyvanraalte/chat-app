@@ -13,10 +13,21 @@ const RoomList: React.FC<IRoomList> = ({ rooms}) => {
     const currentRoom = useSelector(selectChatState).currentRoom
 
     const onClick = (room: Room) => {
+        if (currentRoom !== "") {
+            services.socketService.emit("leave-room", {
+                room: currentRoom,
+            })
+        }
+
         services.socketService.emit("join-room", {
             room: room.id,
             user: localStorage.getItem("user")
         })
+
+        services.socketService.emit("list-room-users", {
+            room: room.id
+        })
+
         dispatch(setCurrentRoom(room.id))
     }
 

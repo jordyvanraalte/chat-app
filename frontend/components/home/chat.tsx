@@ -7,7 +7,8 @@ import CreateRoom from "./create-room";
 import SocketService from "../../lib/services/socket.service";
 import {services} from "../../lib/services";
 import {useDispatch, useSelector} from "react-redux";
-import {addMessage, addRoom, selectChatState, setRooms} from "../../store/chatSlice";
+import {addMessage, addRoom, selectChatState, setCurrentRoom, setRooms, setRoomUsers} from "../../store/chatSlice";
+import {json} from "stream/consumers";
 
 const ChatComponent: React.FC = () => {
     const chatState = useSelector(selectChatState);
@@ -17,6 +18,16 @@ const ChatComponent: React.FC = () => {
     useEffect(() => {
         services.socketService.emit("list-rooms", {})
 
+        if(chatState.currentRoom !== ""){
+            services.socketService.emit("list-room-users", {
+                room: chatState.currentRoom
+            })
+        }
+
+        services.socketService.on("list-room-users", (data) => {
+            dispatch(setRoomUsers(JSON.parse(data)))
+        })
+
         services.socketService.on("listed-rooms", (data) => {
             dispatch(setRooms(JSON.parse(data)))
         })
@@ -24,10 +35,20 @@ const ChatComponent: React.FC = () => {
         services.socketService.on("created-room", (data) => {
             const room = JSON.parse(data)
             dispatch(addRoom(room))
+            dispatch(setCurrentRoom(room.id))
+        })
+
+        services.socketService.on("joined-room", (data) => {
+            const message = JSON.parse(data)
+            dispatch(addMessage(message))
+        })
+
+        services.socketService.on("left-room", (data) => {
+            const message = JSON.parse(data)
+            dispatch(addMessage(message))
         })
 
         services.socketService.on("new-message", (data) => {
-            console.log(data)
             dispatch(addMessage(JSON.parse(data)))
         })
     }, [])
@@ -40,7 +61,7 @@ const ChatComponent: React.FC = () => {
                 <Messages messages={chatState.messages} />
                 <ChatInput />
             </div>
-            <CreateRoom />
+            <CreateRoom users={chatState.roomUsers} />
         </div>
 </div>)
 }

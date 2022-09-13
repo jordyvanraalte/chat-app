@@ -1,10 +1,15 @@
 import React, {useState} from "react";
 import {services} from "../../lib/services";
 import User from "../../entities/user";
+import {useSelector} from "react-redux";
+import {selectChatState} from "../../store/chatSlice";
 
-const CreateRoom: React.FC = () => {
+export interface ICreateRoom {
+    users: User[]
+}
+
+const CreateRoom: React.FC<ICreateRoom> = ({ users}) => {
     const [name, setName] = useState("");
-    const [users, setUsers] = useState<User[]>([]);
 
     const onRoomCreate = () => {
         const user = localStorage.getItem("user");
@@ -30,15 +35,15 @@ const CreateRoom: React.FC = () => {
                         className="text-white bg-blue-400 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 mt-4 mr-2 mb-2 focus:outline-none">Create
                 </button>
             </div>
-            <div>
+            <div className="overflow-y-auto h-4/5">
+                <div className="font-semibold text-xl py-4">Users in room</div>
                 {
                     users.map((user, index) => {
                         return (
                             <div key={index}>
-                                <div className="font-semibold text-xl py-4">Users in room</div>
                                 <div  className="flex flex-row py-4 px-2 justify-center items-center border-b-2">
                                     <div className="flex w-full justify-between">
-                                        <span className="text-gray-500">Username</span>
+                                        <span className="text-gray-500">{user.username}</span>
                                         <img
                                             src="https://source.unsplash.com/vpOeXr5wmR4/600x600"
                                             className="object-cover h-8 w-8 rounded-full"

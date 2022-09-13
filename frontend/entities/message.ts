@@ -1,14 +1,16 @@
 import User from "./user";
 
 export default class Message {
-    user: User
+    id: string;
     message: string;
     timestamp: string;
+    user: string;
 
 
-    constructor(user: User, message: string, timestamp: string) {
-        this.user = user;
+    constructor(id: string, message: string, timestamp: string, user: string) {
+        this.id = id;
         this.message = message;
         this.timestamp = timestamp;
+        this.user = user;
     }
 }
